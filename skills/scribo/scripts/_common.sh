@@ -98,6 +98,14 @@ scribo_print_error() {
   else
     {
       printf 'scribo: HTTP %s (no JSON error envelope)\n' "$status"
+      # A non-2xx with no Scribo error envelope was blocked BEFORE reaching the
+      # app — by a network egress proxy (some sandboxed agent runtimes only
+      # allow allow-listed hosts) or a WAF/load balancer in front of the API —
+      # not by Scribo. A bare 403 is the classic shape; it is NOT Turnstile and
+      # NOT email verification, so re-verifying does not help.
+      if [ "$status" = "403" ]; then
+        printf 'scribo: a bare 403 with no Scribo error envelope means the request was blocked upstream (a network egress proxy or a WAF in front of the API), not by Scribo. Not Turnstile, not verification — re-verifying will not help. See references/troubleshooting.md.\n'
+      fi
       if [ -s "$body_file" ]; then
         head -c 2000 <"$body_file"
         printf '\n'

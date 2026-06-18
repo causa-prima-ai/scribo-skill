@@ -16,7 +16,7 @@
 #
 # Exit codes (sysexits-style):
 #   0  ok (challenge minted or reused)
-#   64 invalid input / 4xx (e.g. turnstile_required on a fresh network)
+#   64 invalid input / other 4xx (a bare 403 from a WAF/egress proxy lands here)
 #   70 server / network error
 #   75 rate-limited (429)
 

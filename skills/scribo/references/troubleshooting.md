@@ -66,11 +66,18 @@ What to tell the user:
 - `limit_code: "tenant"` — this sender email has generated 50 invoices in the last 24h. Wait or contact support.
 - `limit_code: "email_domain"` — the sender's email domain has hit the soft-block threshold. Use a different domain or contact support.
 
-## `turnstile_required` (403)
+## `turnstile_required` (401)
 
-This headless skill is out of scope for CAPTCHA — Turnstile gates the web UI only, so you shouldn't normally see this from the API. If a verification request from a brand-new network ever does return it, the helper scripts can't solve the CAPTCHA. Tell the user:
+Turnstile (CAPTCHA) gates **only the Scribo web chat**. The public `/api/v1/*` API and these scripts are **never** CAPTCHA-gated, so a correctly-routed skill call never gets `turnstile_required`. If you do see it (a 401 *with* a JSON `error` body), the request hit the web-chat route by mistake — use the `/api/v1/*` endpoints the scripts already target. Re-verifying or visiting the web UI does not help: web verification yields a browser session, not a `verification_token` the scripts can reuse.
 
-> "The first verification from this network needs to go through the web UI at https://scribo.causaprima.ai. Once you've verified your email there once, subsequent calls from this terminal will work."
+## Bare `403` with no JSON `error` envelope
+
+Every error Scribo itself emits is JSON. A `403 Forbidden` whose body is a short HTML page (not the `{ "error": … }` envelope) did **not** come from Scribo — the request was blocked **before** it reached the app:
+
+- a **network egress proxy** — some sandboxed agent runtimes (e.g. Claude Cowork) only allow outbound HTTPS to allow-listed hosts; or
+- a **WAF / load balancer** in front of the API — a free-text field shaped like SQL, HTML, or a path traversal can trip it.
+
+This is not Turnstile and not email verification, so re-verifying won't fix it. If it's a sandbox egress limit, use the hosted MCP server at `https://scribo.causaprima.ai/mcp` (invoked server-side, so it needs no sandbox network access).
 
 ## `idempotency_key_mismatch` (422)
 

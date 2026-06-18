@@ -97,8 +97,9 @@ if [ -z "$verification_token" ]; then
   fi
 
   request_body="$(jq -nc --arg email "$sender_email" '{ email: $email }')"
-  # scribo_request prints the error envelope and exits non-zero on a 4xx/5xx
-  # (e.g. turnstile_required on a fresh network); set -e then propagates here.
+  # scribo_request prints the error and exits non-zero on a 4xx/5xx (e.g. a
+  # 429 rate-limit, or a bare 403 from a WAF/egress proxy in front of the API);
+  # set -e then propagates here.
   challenge_response="$(scribo_request POST /api/v1/scribo/email-verifications \
     -H "Content-Type: application/json" \
     --data-binary "$request_body")"

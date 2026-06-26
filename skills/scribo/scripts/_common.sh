@@ -124,6 +124,11 @@ scribo_request() {
   body_file="$(mktemp)"
   status_file="$(mktemp)"
   local -a headers=()
+  # Product-analytics surface tag: lets the Scribo API attribute invoices
+  # created through this skill to the `skill` surface in the PostHog funnel
+  # (broken down by `surface`). Sent on every request; the API only reads it
+  # on the create path.
+  headers+=(-H "X-Scribo-Surface: skill")
   if [ -n "$SCRIBO_API_KEY" ]; then
     headers+=(-H "Authorization: Bearer $SCRIBO_API_KEY")
   fi

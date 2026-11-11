@@ -17,10 +17,11 @@ The helper scripts exit with sysexits-style codes:
 | Exit code | Meaning |
 |---|---|
 | `0` | OK |
-| `10` | Verification required — `create_invoice.sh` was called without a token; it requested a challenge and printed `verification_required`. Collect the code, redeem, retry. |
+| `10` | Verification required — `create_invoice.sh` or `get_invoice.sh` / `download_invoice.sh` had no valid token (none, expired, or for another email). Without one they request a challenge and print `verification_required`. Collect the code, redeem, retry. |
 | `11` | Verification code rejected (`verification_invalid`, from `redeem_verification.sh`) — wrong/expired/revoked code. Re-prompt the user and retry. |
 | `64` | Invalid input / bad usage (4xx with `code` in the `invalid_input` family, or missing CLI arguments) |
 | `65` | Data validation failed (`validator_failed`) |
+| `66` | Download link refused (`download_link_invalid`, `download_link_expired`, or Scribo's redirect to its link-unavailable page). Re-run `download_invoice.sh` for a fresh link. |
 | `70` | Server error (5xx) |
 | `75` | Rate-limited (429) |
 
@@ -32,13 +33,21 @@ Invoice creation requires proof the caller owns `sender.contact_email`. You orch
 
 Not a server error — `create_invoice.sh` was run without a `verification_token`. It has requested a challenge and printed `{ status: "verification_required", challenge_id, email_hint, next_step }`. Ask the user for the 6-digit code emailed to `email_hint`, run `redeem_verification.sh <challenge_id> <code>`, then re-run `create_invoice.sh` with `SCRIBO_VERIFICATION_TOKEN` set (or `--verification-token`).
 
-### `email_verification_required` (401, from `/api/v1/invoices`)
+### `email_verification_required` (401, from `/api/v1/invoices` or `/api/v1/invoices/:id`, exit 10)
 
-The create reached the API without a valid `X-Email-Verification-Token` (or the token expired). Re-run the verification flow to mint a fresh token. (In normal use `create_invoice.sh` prevents this by requesting a challenge before it ever calls `/api/v1/invoices`.)
+The create or read reached the API without a valid `X-Email-Verification-Token` (or the token expired). Re-run the verification flow to mint a fresh token. (In normal use `create_invoice.sh` prevents this by requesting a challenge before it ever calls `/api/v1/invoices`; `get_invoice.sh --email` does the same for reads.)
 
 ### `verification_email_mismatch` (403, from `/api/v1/invoices`)
 
 The verified email doesn't match `sender.contact_email`. The token is bound to the exact email it was issued for — you can't verify one address and invoice as another. Re-run verification for the **same** email that's in `sender.contact_email`, or correct the payload.
+
+### `invoice_not_found` (404, from `/api/v1/invoices/:id`, exit 64)
+
+No invoice with that id was issued from the verified email: the id is wrong, or the invoice belongs to another sender. Both look the same on purpose. Check the id, and verify the email the invoice was actually issued from.
+
+### `download_link_invalid` / `download_link_expired` (403, exit 66)
+
+A download needs the signed `download_url` from a create or `get_invoice.sh` response. It is valid for 15 minutes (30 days in emails) and can be revoked. Never build or edit the URL; re-run `download_invoice.sh`, which fetches a fresh link.
 
 ### `verification_invalid` (400, from `redeem_verification.sh`, exit 11)
 

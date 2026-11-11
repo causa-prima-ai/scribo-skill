@@ -143,7 +143,7 @@ A clean PDF invoice — no e-invoice XML, since the US has no e-invoicing mandat
 
 > Send me the download link for the invoice I made for Beispiel GmbH last week.
 
-Scribo returns a fresh download link for an invoice you've already generated.
+Scribo returns a fresh download link for an invoice you've already generated, once you confirm the sender email. The link is valid for 15 minutes.
 
 ## Compliance
 

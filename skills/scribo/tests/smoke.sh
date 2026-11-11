@@ -111,10 +111,43 @@ n="$(curl -s "$SCRIBO_BASE_URL/__debug/invoice-post-attempts" | jq -r .count)"
 [ "$n" = "1" ] || fail "expected exactly 1 invoice POST after verification, got $n"
 ok "invoice persisted exactly once, only after verification"
 
-# 7. download -> %PDF bytes, exit 0 (exercises download_invoice.sh's own curl on bash 3.2)
-run download_invoice.sh "$invid" -o /tmp/smoke.pdf
+# 7. get is sender-only: no token and no email -> exit 64; --email -> a code
+# and verification_required / exit 10; a stale token -> exit 10.
+run get_invoice.sh "$invid"
+[ "$rc" -eq 64 ] || fail "get without verification exit=$rc (want 64)"
+run get_invoice.sh "$invid" --email smoke@example.com
+[ "$rc" -eq 10 ] || fail "get --email exit=$rc (want 10); stderr: $(cat /tmp/smoke.err)"
+[ "$(printf '%s' "$out" | jq -r .status)" = "verification_required" ] || fail "get --email status"
+SCRIBO_VERIFICATION_TOKEN=stale run get_invoice.sh "$invid"
+[ "$rc" -eq 10 ] || fail "get with a stale token exit=$rc (want 10)"
+ok "get without valid verification -> 64 / 10"
+
+# 7b. get with the token -> a signed download_url; an unknown id -> 404 / exit 64.
+SCRIBO_VERIFICATION_TOKEN="$token" run get_invoice.sh "$invid"
+[ "$rc" -eq 0 ] || fail "get with token exit=$rc; stderr: $(cat /tmp/smoke.err)"
+printf '%s' "$out" | jq -r .download_url | grep -q '[?&]t=' || fail "download_url is not signed"
+SCRIBO_VERIFICATION_TOKEN="$token" run get_invoice.sh inv-unknown
+[ "$rc" -eq 64 ] || fail "get unknown id exit=$rc (want 64)"
+ok "get (token) -> signed download_url; unknown id -> 64"
+
+# 8. download -> %PDF bytes through the signed link, exit 0 (exercises
+# download_invoice.sh's own curl on bash 3.2)
+rm -f /tmp/smoke.pdf
+SCRIBO_VERIFICATION_TOKEN="$token" run download_invoice.sh "$invid" -o /tmp/smoke.pdf
 [ "$rc" -eq 0 ] || fail "download exit=$rc; stderr: $(cat /tmp/smoke.err)"
 head -c 5 /tmp/smoke.pdf | grep -q '%PDF' || fail "download did not write a PDF"
 ok "download -> %PDF / exit 0"
+
+# 8b. a refused link (expired 403, or Scribo's 303 to the explanation page)
+# -> exit 66 and nothing written; no verification -> exit 64.
+for id in inv-expired inv-redirect; do
+  rm -f /tmp/smoke-refused.pdf
+  SCRIBO_VERIFICATION_TOKEN="$token" run download_invoice.sh "$id" -o /tmp/smoke-refused.pdf
+  [ "$rc" -eq 66 ] || fail "download $id exit=$rc (want 66); stderr: $(cat /tmp/smoke.err)"
+  [ ! -e /tmp/smoke-refused.pdf ] || fail "download $id wrote a file"
+done
+run download_invoice.sh "$invid" -o /tmp/smoke-refused.pdf
+[ "$rc" -eq 64 ] || fail "download without verification exit=$rc (want 64)"
+ok "download refused link -> 66, no file; no verification -> 64"
 
 printf '\nALL %s CHECKS PASSED (bash: %s)\n' "$pass" "$("$bash_bin" --version | head -1)"

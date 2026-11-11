@@ -72,6 +72,13 @@ scribo_exit_for_error() {
         # for the code again" from a generic malformed request. Pairs with the
         # exit 10 that create_invoice.sh emits for verification_required.
         verification_invalid) return 11 ;;
+        # A missing, expired or mismatched verification token: verify the
+        # sender email again (request_verification.sh, redeem_verification.sh),
+        # then re-run. Same exit as create_invoice.sh's tokenless path.
+        email_verification_required|verification_email_mismatch) return 10 ;;
+        # A signed download link that is missing, altered, expired or revoked.
+        # Fetch a fresh one with get_invoice.sh (download_invoice.sh does).
+        download_link_invalid|download_link_expired) return 66 ;;
         *) return 64 ;;
       esac
       ;;

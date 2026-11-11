@@ -46,13 +46,48 @@ class Handler(BaseHTTPRequestHandler):
                 {"jurisdiction": "DE", "formats": ["zugferd_comfort"], "default_format": "zugferd_comfort"},
                 {"jurisdiction": "US", "formats": ["plain_pdf"], "default_format": "plain_pdf"},
             ])
-        if p.startswith("/api/v1/invoices/") and p.endswith("/download"):
+        path, _, query = p.partition("?")
+        params = dict(kv.split("=", 1) for kv in query.split("&") if "=" in kv)
+        if path.startswith("/api/v1/invoices/") and path.endswith("/download"):
+            # Signed links only: the token is the whole credential.
+            token = params.get("t")
+            if token == "expired":
+                return self._json(403, {"error": {"code": "download_link_expired", "message": "This download link has expired."}})
+            if token != "signed-ok":
+                return self._json(403, {"error": {"code": "download_link_invalid", "message": "A signed download link is required."}})
             self.send_response(200)
             self.send_header("Content-Type", "application/pdf")
             self.send_header("Content-Length", str(len(PDF_BYTES)))
             self.end_headers()
             self.wfile.write(PDF_BYTES)
             return
+        if path.startswith("/i/") and path.endswith("/download"):
+            # Scribo's browser route sends a refused link to an explanation page.
+            self.send_response(303)
+            self.send_header("Location", "/i/link-unavailable?reason=expired")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        if path.startswith("/api/v1/invoices/"):
+            # Sender-only read: no token is 401, another sender's or an unknown
+            # invoice the same 404.
+            if self.headers.get("X-Email-Verification-Token") != VERIFICATION_TOKEN:
+                return self._json(401, {"error": {"code": "email_verification_required", "message": "Email verification required."}})
+            invoice_id = path.rsplit("/", 1)[-1]
+            base = "http://127.0.0.1:%s" % os.environ.get("PORT", "8799")
+            links = {
+                "inv-mock-1": base + "/api/v1/invoices/inv-mock-1/download?t=signed-ok",
+                "inv-expired": base + "/api/v1/invoices/inv-expired/download?t=expired",
+                "inv-redirect": base + "/i/inv-redirect/download?t=expired",
+            }
+            if invoice_id not in links:
+                return self._json(404, {"error": {"code": "invoice_not_found", "message": "Invoice not found."}})
+            return self._json(200, {
+                "invoice_id": invoice_id,
+                "format": "zugferd_comfort",
+                "download_url": links[invoice_id],
+                "download_url_expires_at": "2099-01-01T00:15:00Z",
+            })
         return self._json(404, {"error": {"code": "not_found", "message": p}})
 
     def do_POST(self):
@@ -90,7 +125,7 @@ class Handler(BaseHTTPRequestHandler):
                 "invoice_id": "inv-mock-1",
                 "document_id": "doc-mock-1",
                 "format": "zugferd_comfort",
-                "download_url": "http://127.0.0.1:%s/api/v1/invoices/inv-mock-1/download" % os.environ.get("PORT", "8799"),
+                "download_url": "http://127.0.0.1:%s/api/v1/invoices/inv-mock-1/download?t=signed-ok" % os.environ.get("PORT", "8799"),
                 "download_url_expires_at": "2099-01-01T00:15:00Z",
                 "validator_summary": {"valid": True, "validator": "mock", "errors": []},
                 "received_verification_token": token,

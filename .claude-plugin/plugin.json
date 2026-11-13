@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "scribo-skill",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Generate EN 16931-compliant e-invoices via the public Scribo HTTP API. Plain bash + curl + jq helpers, no MCP server or npm install required.",
   "author": {
     "name": "Causa Prima",

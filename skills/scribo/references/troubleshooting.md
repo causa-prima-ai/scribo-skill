@@ -86,7 +86,7 @@ Every error Scribo itself emits is JSON. A `403 Forbidden` whose body is a short
 - a **network egress proxy** — some sandboxed agent runtimes (e.g. Claude Cowork) only allow outbound HTTPS to allow-listed hosts; or
 - a **WAF / load balancer** in front of the API — a free-text field shaped like SQL, HTML, or a path traversal can trip it.
 
-This is not Turnstile and not email verification, so re-verifying won't fix it. If it's a sandbox egress limit, use the hosted MCP server at `https://scribo.causaprima.ai/mcp` (invoked server-side, so it needs no sandbox network access).
+This is not Turnstile and not email verification, so re-verifying won't fix it. If it's a sandbox egress limit, use the hosted MCP server at `https://scribo.causaprima.com/mcp` (invoked server-side, so it needs no sandbox network access).
 
 ## `idempotency_key_mismatch` (422)
 

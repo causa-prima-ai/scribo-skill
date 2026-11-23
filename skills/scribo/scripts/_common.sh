@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-SCRIBO_BASE_URL="${SCRIBO_BASE_URL:-https://scribo.causaprima.ai}"
+SCRIBO_BASE_URL="${SCRIBO_BASE_URL:-https://scribo.causaprima.com}"
 SCRIBO_API_KEY="${SCRIBO_API_KEY:-}"
 # BCP-47 UI-language tag (e.g. de-DE). When set, sent as X-Scribo-Locale on
 # every request, so Scribo's outbound emails — the verification message (with

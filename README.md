@@ -25,7 +25,7 @@ Scribo is a free, conversational e-invoicing tool. Describe an invoice in plain 
 
 Just ask your AI agent about Scribo: it ships as an MCP server, a CLI, and a Claude/Codex skill, alongside a public HTTP API and a web app. Free forever — no credit card. You just need a sender email.
 
-**Built by Causa Prima** — Scribo is built by [**Causa Prima**](https://causaprima.ai/), a company building agentic AI for the CFO office. It's our first freely available skill — an early glimpse of what we're building.
+**Built by Causa Prima** — Scribo is built by [**Causa Prima**](https://causaprima.com/), a company building agentic AI for the CFO office. It's our first freely available skill — an early glimpse of what we're building.
 
 ## What is the Scribo skill?
 
@@ -101,7 +101,7 @@ cp -r /tmp/scribo-skill/skills/scribo ~/.codex/skills/scribo     # Codex CLI
 
 **Verify.** Ask your assistant: _"list the jurisdictions Scribo supports."_ You should get back a list of supported countries.
 
-Full install detail (Cowork, team installs, troubleshooting): [scribo.causaprima.ai/docs/skill](https://scribo.causaprima.ai/docs/skill).
+Full install detail (Cowork, team installs, troubleshooting): [scribo.causaprima.com/docs/skill](https://scribo.causaprima.com/docs/skill).
 
 ## Usage
 
@@ -216,23 +216,23 @@ Scribo is built to be operated by an agent. It ships as an **MCP server**, a **C
 <details>
 <summary><strong>Who builds Scribo?</strong></summary>
 
-[Causa Prima](https://causaprima.ai/) — a company building agentic AI for the CFO office. Operated by Causa Prima Germany GmbH, Munich.
+[Causa Prima](https://causaprima.com/) — a company building agentic AI for the CFO office. Operated by Causa Prima Germany GmbH, Munich.
 
 </details>
 
 ## Resources
 
-- **Web app** — [scribo.causaprima.ai](https://scribo.causaprima.ai)
-- **Documentation** — [scribo.causaprima.ai/docs](https://scribo.causaprima.ai/docs)
-- **Compliance & trust** — [scribo.causaprima.ai/compliance](https://scribo.causaprima.ai/compliance)
-- **Causa Prima** — [causaprima.ai](https://causaprima.ai)
+- **Web app** — [scribo.causaprima.com](https://scribo.causaprima.com)
+- **Documentation** — [scribo.causaprima.com/docs](https://scribo.causaprima.com/docs)
+- **Compliance & trust** — [scribo.causaprima.com/compliance](https://scribo.causaprima.com/compliance)
+- **Causa Prima** — [causaprima.com](https://causaprima.com)
 
 **Other Scribo surfaces**
 
-- Skill (Claude / Codex) — [`scribo-skill`](https://github.com/causa-prima-ai/scribo-skill) · [docs](https://scribo.causaprima.ai/docs/skill)
-- MCP server — [`scribo-mcp`](https://github.com/causa-prima-ai/scribo-mcp) · [docs](https://scribo.causaprima.ai/docs/mcp)
-- CLI — [`scribo-cli`](https://github.com/causa-prima-ai/scribo-cli) · [docs](https://scribo.causaprima.ai/docs/cli)
-- HTTP API — [`scribo-api-docs`](https://github.com/causa-prima-ai/scribo-api-docs) · [docs](https://scribo.causaprima.ai/docs/api)
+- Skill (Claude / Codex) — [`scribo-skill`](https://github.com/causa-prima-ai/scribo-skill) · [docs](https://scribo.causaprima.com/docs/skill)
+- MCP server — [`scribo-mcp`](https://github.com/causa-prima-ai/scribo-mcp) · [docs](https://scribo.causaprima.com/docs/mcp)
+- CLI — [`scribo-cli`](https://github.com/causa-prima-ai/scribo-cli) · [docs](https://scribo.causaprima.com/docs/cli)
+- HTTP API — [`scribo-api-docs`](https://github.com/causa-prima-ai/scribo-api-docs) · [docs](https://scribo.causaprima.com/docs/api)
 - Brand hub — [`scribo`](https://github.com/causa-prima-ai/scribo)
 
 ## License

@@ -10,7 +10,7 @@ allowed-tools:
 
 Use Scribo when a user asks to generate, draft, or "create" an invoice. Scribo emits structured machine-readable invoices that satisfy EU mandates (German B2B / Federal B2G) and can also produce a plain US PDF when no XML is needed. French Factur-X, Spanish Facturae, and Belgian/cross-border Peppol BIS UBL are **Phase 2 — coming soon**.
 
-This skill talks to the public Scribo HTTP API at `https://scribo.causaprima.ai` via small `curl` + `jq` helper scripts. No MCP server or npm install required. Override the base URL with `SCRIBO_BASE_URL` for dev/staging.
+This skill talks to the public Scribo HTTP API at `https://scribo.causaprima.com` via small `curl` + `jq` helper scripts. No MCP server or npm install required. Override the base URL with `SCRIBO_BASE_URL` for dev/staging.
 
 ## When to use
 
